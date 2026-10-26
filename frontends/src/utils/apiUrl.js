@@ -1,5 +1,5 @@
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3010/api';
-export const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL || 'http://localhost:3010';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+export const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL || '';
 
 export const toApiUrl = (value = '') => {
   if (typeof value !== 'string' || !value.trim()) return '';
@@ -18,5 +18,6 @@ export const toApiUrl = (value = '') => {
       ? normalizedValue
       : `/${normalizedValue}`;
 
-  return `${BACKEND_BASE_URL.replace(/\/+$/, '')}${publicPath}`;
+  const baseUrl = BACKEND_BASE_URL ? BACKEND_BASE_URL.replace(/\/+$/, '') : '';
+  return baseUrl ? `${baseUrl}${publicPath}` : publicPath;
 };

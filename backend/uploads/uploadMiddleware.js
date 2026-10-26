@@ -1,13 +1,23 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import multer from 'multer';
 
 import { attachUploadedFile, attachUploadedFiles } from './uploadHelpers.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const rootUploadDirectory = path.join(__dirname);
+export const resolveUploadDirectory = () => {
+  const configuredUploadDir = process.env.UPLOADS_DIR || process.env.UPLOAD_DIRECTORY;
+  if (configuredUploadDir) {
+    if (/^(?:[A-Za-z]:)?[\\/]/.test(configuredUploadDir) || configuredUploadDir.startsWith('~')) {
+      return configuredUploadDir.replace(/\\/g, '/');
+    }
+
+    return path.resolve(configuredUploadDir);
+  }
+
+  return path.resolve(process.cwd(), 'uploads');
+};
+
+const rootUploadDirectory = resolveUploadDirectory();
 
 fs.mkdirSync(rootUploadDirectory, { recursive: true });
 

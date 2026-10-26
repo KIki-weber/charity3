@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { attachUploadedFiles, buildUploadPayload, getUploadUrl } from '../uploads/uploadHelpers.js';
-import { getUploadFieldLimit } from '../uploads/uploadMiddleware.js';
+import { getUploadFieldLimit, resolveUploadDirectory } from '../uploads/uploadMiddleware.js';
 
 test('buildUploadPayload returns a normalized public URL for a single file', () => {
   const result = buildUploadPayload({ originalname: 'photo.png', filename: 'photo-123.png', path: 'uploads/photo-123.png' });
@@ -54,6 +54,22 @@ test('attachUploadedFiles keeps existing gallery URLs when adding new uploads', 
     '/uploads/team-members/also-existing.png',
     '/uploads/team-members/new-photo-123.png',
   ]);
+});
+
+test('resolveUploadDirectory uses the configured deployment upload path when provided', () => {
+  const previousUploadDir = process.env.UPLOADS_DIR;
+  const customUploadDir = '/var/www/charity/uploads';
+
+  process.env.UPLOADS_DIR = customUploadDir;
+  try {
+    assert.equal(resolveUploadDirectory(), customUploadDir);
+  } finally {
+    if (previousUploadDir === undefined) {
+      delete process.env.UPLOADS_DIR;
+    } else {
+      process.env.UPLOADS_DIR = previousUploadDir;
+    }
+  }
 });
 
 test('getUploadFieldLimit keeps photo files at 10MB and videos at 1000MB', () => {
